@@ -256,6 +256,15 @@
     const filtered = getFilteredConversations();
     meta.textContent = `已加载：${state.conversations.length}｜当前显示：${filtered.length}｜已选：${state.selected.size}`;
 
+    const allBtn = document.getElementById('tm-bulkdel-all');
+    if (allBtn) {
+      if (filtered.length > 0 && filtered.every(c => state.selected.has(c.id))) {
+        allBtn.textContent = '取消全选';
+      } else {
+        allBtn.textContent = '全选';
+      }
+    }
+
     list.innerHTML = '';
     for (const c of filtered) {
       const row = document.createElement('div');
@@ -293,9 +302,7 @@
     state.cancelLoad = false;
     logLine('开始加载会话…');
 
-    const btnStop = document.getElementById('tm-bulkdel-stop');
     const btnLoad = document.getElementById('tm-bulkdel-load');
-    if (btnStop) btnStop.disabled = false;
     if (btnLoad) btnLoad.disabled = true;
 
     try {
@@ -329,27 +336,20 @@
       alert(`加载失败：${e.message || e}`);
     } finally {
       state.loading = false;
-      if (btnStop) btnStop.disabled = true;
       if (btnLoad) btnLoad.disabled = false;
       renderList();
     }
   }
 
-  function selectAllVisible() {
-    for (const c of getFilteredConversations()) state.selected.add(c.id);
-    renderList();
-  }
-
-  function invertVisible() {
-    for (const c of getFilteredConversations()) {
-      if (state.selected.has(c.id)) state.selected.delete(c.id);
-      else state.selected.add(c.id);
+  function toggleSelectAll() {
+    const visible = getFilteredConversations();
+    if (!visible.length) return;
+    const allSelected = visible.every(c => state.selected.has(c.id));
+    if (allSelected) {
+      for (const c of visible) state.selected.delete(c.id);
+    } else {
+      for (const c of visible) state.selected.add(c.id);
     }
-    renderList();
-  }
-
-  function clearSelectedVisible() {
-    for (const c of getFilteredConversations()) state.selected.delete(c.id);
     renderList();
   }
 
@@ -547,13 +547,10 @@
       <div class="body">
         <div class="row">
           <button class="btn" id="tm-bulkdel-load">加载全部</button>
-          <button class="btn" id="tm-bulkdel-stop" disabled>停止加载</button>
           <button class="btn danger" id="tm-bulkdel-del">删除选中</button>
         </div>
         <div class="row">
           <button class="btn" id="tm-bulkdel-all">全选</button>
-          <button class="btn" id="tm-bulkdel-inv">反选</button>
-          <button class="btn" id="tm-bulkdel-clr">清除</button>
           <input id="tm-bulkdel-q" type="text" placeholder="搜索标题或ID…">
         </div>
         <div class="meta" id="tm-bulkdel-meta">已加载：0｜当前显示：0｜已选：0</div>
@@ -590,11 +587,8 @@
     // 面板事件
     document.getElementById('tm-bulkdel-close').onclick = () => setOpen(false);
     document.getElementById('tm-bulkdel-load').onclick = loadAll;
-    document.getElementById('tm-bulkdel-stop').onclick = () => { state.cancelLoad = true; };
     document.getElementById('tm-bulkdel-del').onclick = deleteSelected;
-    document.getElementById('tm-bulkdel-all').onclick = selectAllVisible;
-    document.getElementById('tm-bulkdel-inv').onclick = invertVisible;
-    document.getElementById('tm-bulkdel-clr').onclick = clearSelectedVisible;
+    document.getElementById('tm-bulkdel-all').onclick = toggleSelectAll;
 
     document.getElementById('tm-bulkdel-q').addEventListener('input', (e) => {
       state.filter = e.target.value || '';
