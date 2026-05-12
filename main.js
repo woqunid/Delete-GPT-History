@@ -31,265 +31,164 @@
   };
 
   GM_addStyle(`
-    :root{
-      /* 浅色主题 */
-      --tm-bg: rgba(255,255,255,.92);
-      --tm-panel: rgba(255,255,255,.96);
-      --tm-stroke: rgba(0,0,0,.10);
-      --tm-stroke2: rgba(0,0,0,.06);
-      --tm-text: rgba(0,0,0,.88);
-      --tm-muted: rgba(0,0,0,.62);
-      --tm-shadow: 0 18px 50px rgba(0,0,0,.18);
+    :root {
+      --tm-bg: #ffffff;
+      --tm-panel: #ffffff;
+      --tm-stroke: #eaeaea;
+      --tm-stroke2: #f4f4f4;
+      --tm-text: #333333;
+      --tm-muted: #888888;
+      --tm-shadow: 0 8px 30px rgba(0,0,0,0.08);
 
-      --tm-radius: 14px;
-      --tm-radius2: 12px;
+      --tm-radius: 12px;
+      --tm-radius2: 6px;
 
-      --tm-btn: rgba(0,0,0,.04);
-      --tm-btn-hover: rgba(0,0,0,.07);
+      --tm-btn: #f9f9f9;
+      --tm-btn-hover: #f0f0f0;
 
-      --tm-danger: rgba(185,28,28,.10);
-      --tm-danger-stroke: rgba(185,28,28,.35);
-      --tm-danger-text: rgba(140,0,0,.85);
+      --tm-danger: #fff0f0;
+      --tm-danger-stroke: #ffcccc;
+      --tm-danger-text: #d32f2f;
 
-      --tm-focus: rgba(59,130,246,.35); /* 蓝色 focus ring */
+      --tm-focus: #007aff;
     }
 
-    /* 方形悬浮按钮（可拖拽） */
-    #tm-bulkdel-fab{
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      background: var(--tm-bg);
-      color: var(--tm-text);
+    /* 方形悬浮按钮 */
+    #tm-bulkdel-fab {
+      position: fixed; right: 16px; bottom: 16px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--tm-bg); color: var(--tm-text);
       border: 1px solid var(--tm-stroke);
       box-shadow: var(--tm-shadow);
-      z-index: 999999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: grab;
-      user-select: none;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      font: 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      touch-action: none; /* 关键：移动端拖拽不滚屏 */
+      z-index: 999999; display: flex; align-items: center; justify-content: center;
+      cursor: grab; user-select: none;
+      transition: transform .15s ease, box-shadow .15s ease;
+      font: 14px/1 system-ui, sans-serif;
+      touch-action: none;
     }
-    #tm-bulkdel-fab:active{ cursor: grabbing; }
-    #tm-bulkdel-fab:hover{
-      transform: translateY(-1px);
-      background: rgba(105,105,105);
-      border-color: rgba(0,0,0,.14);
-    }
-    #tm-bulkdel-fab .ico{ font-size: 18px; line-height: 1; }
+    #tm-bulkdel-fab:active { cursor: grabbing; transform: scale(0.95); }
+    #tm-bulkdel-fab:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+    #tm-bulkdel-fab .ico { font-size: 20px; }
+    
+    #tm-bulkdel-fab .tip { display: none; }
 
-    #tm-bulkdel-fab .tip{
-      position:absolute;
-      right: 62px;
-      bottom: 10px;
-      padding: 6px 8px;
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(0,0,0,.10);
-      border-radius: 10px;
-      color: var(--tm-text);
-      font-size: 12px;
-      white-space: nowrap;
-      opacity: 0;
-      transform: translateX(6px);
-      pointer-events: none;
-      transition: opacity .12s ease, transform .12s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,.12);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+    /* 遮罩 + 弹窗 */
+    #tm-bulkdel-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.2);
+      z-index: 999998; display: none;
+      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
     }
-    #tm-bulkdel-fab:hover .tip{ opacity: 1; transform: translateX(0px); }
+    #tm-bulkdel-overlay.open { display: block; }
 
-    /* 遮罩 + 弹窗面板 */
-    #tm-bulkdel-overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.18);
-      z-index: 999998;
-      display: none;
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
+    #tm-bulkdel-panel {
+      position: fixed; right: 16px; bottom: 80px;
+      width: 400px; max-width: calc(100vw - 32px);
+      height: 600px; max-height: calc(100vh - 100px);
+      z-index: 999999; display: none;
+      background: var(--tm-panel); color: var(--tm-text);
+      border: 1px solid var(--tm-stroke); border-radius: var(--tm-radius);
+      box-shadow: var(--tm-shadow); overflow: hidden;
+      font: 13px/1.4 system-ui, sans-serif;
+      transform: translateY(10px); opacity: 0;
+      transition: transform .2s ease, opacity .2s ease;
     }
-    #tm-bulkdel-overlay.open{ display:block; }
+    #tm-bulkdel-panel.open { display: block; transform: translateY(0); opacity: 1; }
 
-    #tm-bulkdel-panel{
-      position: fixed;
-      right: 16px;
-      bottom: 78px;
-      width: 420px;
-      max-width: calc(100vw - 32px);
-      height: 620px;
-      max-height: calc(100vh - 110px);
-      z-index: 999999;
-      display: none;
-      background: var(--tm-panel);
-      color: var(--tm-text);
-      border: 1px solid var(--tm-stroke);
-      border-radius: var(--tm-radius);
-      box-shadow: var(--tm-shadow);
-      overflow: hidden;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      font: 13px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      transform: translateY(8px);
-      opacity: 0;
-      transition: transform .14s ease, opacity .14s ease;
+    #tm-bulkdel-panel header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 1px solid var(--tm-stroke2);
     }
-    #tm-bulkdel-panel.open{
-      display:block;
-      transform: translateY(0);
-      opacity: 1;
+    #tm-bulkdel-panel header .title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+    #tm-bulkdel-panel header .title .pill {
+      font-size: 11px; padding: 2px 6px; border-radius: 4px;
+      background: var(--tm-stroke2); color: var(--tm-muted); font-weight: normal;
+    }
+    #tm-bulkdel-panel header button {
+      background: none; border: none; font-size: 16px; color: var(--tm-muted);
+      cursor: pointer; padding: 4px; border-radius: 4px; transition: background .15s;
+    }
+    #tm-bulkdel-panel header button:hover { background: var(--tm-btn-hover); color: var(--tm-text); }
+
+    #tm-bulkdel-panel .body {
+      padding: 16px; display: flex; flex-direction: column; gap: 12px;
+      height: calc(100% - 46px); box-sizing: border-box;
     }
 
-    #tm-bulkdel-panel header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--tm-stroke2);
-      background: rgba(255,255,255,.70);
+    #tm-bulkdel-panel .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    #tm-bulkdel-panel .btn {
+      background: var(--tm-btn); color: var(--tm-text);
+      border: 1px solid var(--tm-stroke); border-radius: var(--tm-radius2);
+      padding: 6px 12px; font-size: 13px; cursor: pointer; user-select: none;
+      transition: all .15s ease;
     }
-    #tm-bulkdel-panel header .title{
-      display:flex; gap:8px; align-items:center;
-      font-weight: 700;
-      letter-spacing: .2px;
-    }
-    #tm-bulkdel-panel header .title .pill{
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--tm-stroke);
-      color: var(--tm-muted);
-      font-weight: 700;
-      background: rgba(0,0,0,.03);
-    }
-    #tm-bulkdel-panel header button{
-      background: rgba(0,0,0,.04);
-      color: var(--tm-text);
-      border: 1px solid var(--tm-stroke);
-      border-radius: 10px;
-      padding: 6px 8px;
-      cursor: pointer;
-    }
-    #tm-bulkdel-panel header button:hover{
-      background: rgba(0,0,0,.06);
-      border-color: rgba(0,0,0,.14);
+    #tm-bulkdel-panel .btn:hover:not(:disabled) { background: var(--tm-btn-hover); border-color: #ddd; }
+    #tm-bulkdel-panel .btn:active:not(:disabled) { transform: translateY(1px); }
+    #tm-bulkdel-panel .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #tm-bulkdel-panel .btn.danger {
+      background: var(--tm-danger); border-color: var(--tm-danger-stroke); color: var(--tm-danger-text);
     }
 
-    #tm-bulkdel-panel .body{
-      padding: 10px 12px;
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-      height: calc(100% - 52px);
-      box-sizing: border-box;
+    #tm-bulkdel-panel input[type="text"] {
+      flex: 1; min-width: 120px;
+      background: #fafafa; border: 1px solid var(--tm-stroke);
+      color: var(--tm-text); border-radius: var(--tm-radius2);
+      padding: 6px 10px; font-size: 13px; outline: none;
+      transition: border-color .15s ease;
+    }
+    #tm-bulkdel-panel input[type="text"]:focus {
+      border-color: var(--tm-focus); background: #fff;
     }
 
-    #tm-bulkdel-panel .row{
-      display:flex; gap:8px; flex-wrap:wrap;
+    #tm-bulkdel-panel .meta { font-size: 12px; color: var(--tm-muted); }
+
+    #tm-bulkdel-panel .list {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      border: 1px solid var(--tm-stroke2); border-radius: var(--tm-radius2);
+    }
+    #tm-bulkdel-panel .item {
+      display: flex; gap: 10px; padding: 10px 12px;
+      border-bottom: 1px solid var(--tm-stroke2); align-items: flex-start;
+      transition: background .15s;
+    }
+    #tm-bulkdel-panel .item:hover { background: #fafafa; }
+    #tm-bulkdel-panel .item:last-child { border-bottom: none; }
+    #tm-bulkdel-panel .item input { margin-top: 3px; cursor: pointer; }
+    #tm-bulkdel-panel .item .t { flex: 1; min-width: 0; }
+    #tm-bulkdel-panel .item .name {
+      font-weight: 500; margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #tm-bulkdel-panel .item .id { font-size: 11px; color: var(--tm-muted); }
+
+    /* 进度条 */
+    #tm-bulkdel-panel .progress-container {
+      display: flex; align-items: center; gap: 10px; padding: 4px 0;
+    }
+    #tm-bulkdel-panel .progress-track {
+      flex: 1; height: 6px; background: var(--tm-stroke2);
+      border-radius: 3px; overflow: hidden;
+    }
+    #tm-bulkdel-panel .progress-fill {
+      height: 100%; width: 0%; background: var(--tm-focus);
+      transition: width 0.2s ease;
+    }
+    #tm-bulkdel-panel .progress-text {
+      font-size: 12px; color: var(--tm-text); font-variant-numeric: tabular-nums;
+      min-width: 50px; text-align: right; font-weight: 500;
     }
 
-    #tm-bulkdel-panel .btn{
-      background: var(--tm-btn);
-      color: var(--tm-text);
-      border: 1px solid var(--tm-stroke);
-      border-radius: var(--tm-radius2);
-      padding: 8px 10px;
-      cursor: pointer;
-      user-select: none;
-      transition: background .12s ease, border-color .12s ease, transform .06s ease;
-    }
-    #tm-bulkdel-panel .btn:hover{
-      background: var(--tm-btn-hover);
-      border-color: rgba(0,0,0,.14);
-    }
-    #tm-bulkdel-panel .btn:active{ transform: scale(.99); }
-    #tm-bulkdel-panel .btn:disabled{ opacity:.45; cursor:not-allowed; }
-
-    #tm-bulkdel-panel .btn.danger{
-      background: var(--tm-danger);
-      border-color: var(--tm-danger-stroke);
-      color: var(--tm-danger-text);
-      font-weight: 650;
-    }
-
-    #tm-bulkdel-panel input[type="text"]{
-      flex:1;
-      min-width: 160px;
-      background: rgba(255,255,255,.90);
-      border: 1px solid var(--tm-stroke);
-      color: var(--tm-text);
-      border-radius: var(--tm-radius2);
-      padding: 8px 10px;
-      outline: none;
-    }
-    #tm-bulkdel-panel input[type="text"]::placeholder{ color: rgba(0,0,0,.40); }
-    #tm-bulkdel-panel input[type="text"]:focus{
-      border-color: rgba(59,130,246,.40);
-      box-shadow: 0 0 0 4px var(--tm-focus);
-    }
-
-    #tm-bulkdel-panel .meta{
-      font-size: 12px;
-      color: var(--tm-muted);
-      margin-top: -4px;
-    }
-
-    #tm-bulkdel-panel .list{
-      flex: 1;
-      overflow: auto;
+    #tm-bulkdel-panel .log {
+      max-height: 80px; overflow: auto;
+      border-radius: var(--tm-radius2); padding: 8px 10px;
+      color: var(--tm-muted); font-size: 12px; background: #fafafa;
       border: 1px solid var(--tm-stroke2);
-      border-radius: var(--tm-radius);
-      background: rgba(255,255,255,.70);
     }
-    #tm-bulkdel-panel .item{
-      display:flex;
-      gap: 10px;
-      padding: 10px 10px;
-      border-bottom: 1px solid var(--tm-stroke2);
-      align-items: flex-start;
-    }
-    #tm-bulkdel-panel .item:hover{
-      background: rgba(0,0,0,.02);
-    }
-    #tm-bulkdel-panel .item:last-child{ border-bottom: none; }
-    #tm-bulkdel-panel .item input{ margin-top: 2px; }
-    #tm-bulkdel-panel .item .t{ flex:1; }
-    #tm-bulkdel-panel .item .name{
-      font-weight: 700;
-      margin-bottom: 2px;
-      word-break: break-word;
-    }
-    #tm-bulkdel-panel .item .id{
-      font-size: 11px;
-      color: rgba(0,0,0,.55);
-      word-break: break-all;
-    }
+    #tm-bulkdel-panel .log div { margin: 3px 0; }
 
-    #tm-bulkdel-panel .log{
-      max-height: 92px;
-      overflow: auto;
-      border: 1px dashed var(--tm-stroke2);
-      border-radius: var(--tm-radius2);
-      padding: 8px 10px;
-      color: rgba(0,0,0,.70);
-      font-size: 12px;
-      background: rgba(0,0,0,.02);
-    }
-    #tm-bulkdel-panel .log div{ margin: 2px 0; }
-
-    #tm-bulkdel-panel .hint{
-      font-size: 12px;
-      color: rgba(0,0,0,.55);
-      line-height: 1.35;
-    }
+    #tm-bulkdel-panel .hint { font-size: 12px; color: var(--tm-muted); text-align: center; margin-top: 4px; }
   `);
 
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -463,6 +362,14 @@
 
     logLine(`开始删除 ${ids.length} 条…`);
 
+    const progContainer = document.getElementById('tm-bulkdel-progress-container');
+    const progText = document.getElementById('tm-bulkdel-progress-text');
+    const progFill = document.getElementById('tm-bulkdel-progress-fill');
+    
+    if (progContainer) progContainer.style.display = 'flex';
+    if (progText) progText.textContent = `0 / ${ids.length}`;
+    if (progFill) progFill.style.width = '0%';
+
     let idx = 0, success = 0, fail = 0;
 
     async function worker() {
@@ -478,6 +385,11 @@
           fail++;
           logLine(`❌ 删除失败：${my}（${e.message || e}）`);
         }
+        
+        const totalDone = success + fail;
+        if (progText) progText.textContent = `${success} / ${ids.length}`;
+        if (progFill) progFill.style.width = `${(totalDone / ids.length) * 100}%`;
+
         renderList();
         await sleep(DELETE_DELAY_MS);
       }
@@ -485,7 +397,10 @@
 
     await Promise.all(Array.from({ length: DELETE_CONCURRENCY }, () => worker()));
     logLine(`完成：成功 ${success}，失败 ${fail}。`);
-    alert(`删除完成：成功 ${success}，失败 ${fail}。`);
+    setTimeout(() => {
+      alert(`删除完成：成功 ${success}，失败 ${fail}。`);
+      if (progContainer) progContainer.style.display = 'none';
+    }, 300);
   }
 
   function setOpen(open) {
@@ -636,18 +551,22 @@
           <button class="btn danger" id="tm-bulkdel-del">删除选中</button>
         </div>
         <div class="row">
-          <button class="btn" id="tm-bulkdel-all">全选(当前)</button>
-          <button class="btn" id="tm-bulkdel-inv">反选(当前)</button>
-          <button class="btn" id="tm-bulkdel-clr">清除(当前)</button>
+          <button class="btn" id="tm-bulkdel-all">全选</button>
+          <button class="btn" id="tm-bulkdel-inv">反选</button>
+          <button class="btn" id="tm-bulkdel-clr">清除</button>
           <input id="tm-bulkdel-q" type="text" placeholder="搜索标题或ID…">
         </div>
         <div class="meta" id="tm-bulkdel-meta">已加载：0｜当前显示：0｜已选：0</div>
         <div class="list" id="tm-bulkdel-list"></div>
+        <div class="progress-container" id="tm-bulkdel-progress-container" style="display: none;">
+          <div class="progress-track">
+            <div class="progress-fill" id="tm-bulkdel-progress-fill"></div>
+          </div>
+          <div class="progress-text" id="tm-bulkdel-progress-text">0 / 0</div>
+        </div>
         <div class="log" id="tm-bulkdel-log"></div>
         <div class="hint">
-          打开面板：拖拽/点击右下角按钮。<br>
-          关闭：右上角 ✕ / 按 Esc / 点遮罩。<br>
-          提示：按钮位置会自动保存。
+          打开面板：拖拽或点击右下角按钮。关闭：Esc 或点击遮罩。<br>按钮位置会自动保存。
         </div>
       </div>
     `;
