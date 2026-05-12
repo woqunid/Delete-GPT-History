@@ -547,10 +547,10 @@
       <div class="body">
         <div class="row">
           <button class="btn" id="tm-bulkdel-load">加载全部</button>
+          <button class="btn" id="tm-bulkdel-all">全选</button>
           <button class="btn danger" id="tm-bulkdel-del">删除选中</button>
         </div>
         <div class="row">
-          <button class="btn" id="tm-bulkdel-all">全选</button>
           <input id="tm-bulkdel-q" type="text" placeholder="搜索标题或ID…">
         </div>
         <div class="meta" id="tm-bulkdel-meta">已加载：0｜当前显示：0｜已选：0</div>
