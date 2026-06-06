@@ -55,7 +55,7 @@
 
     /* 方形悬浮按钮 */
     #tm-bulkdel-fab {
-      position: fixed; right: 16px; bottom: 16px;
+      position: fixed;
       width: 48px; height: 48px;
       border-radius: 50%;
       background: var(--tm-bg); color: var(--tm-text);
@@ -574,12 +574,17 @@
     fab.innerHTML = `<div class="ico">🗑</div><div class="tip">批量删除会话</div>`;
     document.body.appendChild(fab);
 
-    // 应用保存的按钮位置（如有）
+    // 应用保存的按钮位置，无则默认右下角
     const saved = loadFabPos();
-    if (saved) {
-      // 等元素有尺寸再定位
-      requestAnimationFrame(() => applyFabPos(fab, saved.x, saved.y));
-    }
+    requestAnimationFrame(() => {
+      if (saved) {
+        applyFabPos(fab, saved.x, saved.y);
+      } else {
+        const x = window.innerWidth - (fab.offsetWidth || 48) - 16;
+        const y = window.innerHeight - (fab.offsetHeight || 48) - 16;
+        applyFabPos(fab, x, y);
+      }
+    });
 
     // 初始化拖拽（拖动时不会触发点击）
     initFabDrag(fab);
