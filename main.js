@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT 批量删除会话
 // @namespace    https://tampermonkey.net/
-// @version      0.6.0
+// @version      0.6.1
 // @description  方形可拖拽悬浮按钮 → 弹出浅色面板 → 加载/搜索/全选/删除（不依赖侧边栏DOM）
 // @match        https://chatgpt.com/*
 // @match        https://chat.openai.com/*
@@ -18,7 +18,7 @@
   const DELETE_DELAY_MS = 250;   // 每次删除间隔
 
   // 拖拽按钮位置存储 key
-  const FAB_POS_KEY = 'tm_bulkdel_fab_pos_v1';
+  const FAB_POS_KEY = 'tm_bulkdel_fab_pos_v2';
 
   const state = {
     token: null,
@@ -56,6 +56,7 @@
     /* 方形悬浮按钮 */
     #tm-bulkdel-fab {
       position: fixed;
+      right: 16px; bottom: 16px; left: auto; top: auto;
       width: 48px; height: 48px;
       border-radius: 50%;
       background: var(--tm-bg); color: var(--tm-text);
