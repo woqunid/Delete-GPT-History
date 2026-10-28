@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT 批量删除会话
 // @namespace    https://tampermonkey.net/
-// @version      0.6.1
+// @version      0.6.2
 // @description  方形可拖拽悬浮按钮 → 弹出浅色面板 → 加载/搜索/全选/删除（不依赖侧边栏DOM）
 // @match        https://chatgpt.com/*
 // @match        https://chat.openai.com/*
@@ -156,7 +156,23 @@
     }
     #tm-bulkdel-panel .item:hover { background: #fafafa; }
     #tm-bulkdel-panel .item:last-child { border-bottom: none; }
-    #tm-bulkdel-panel .item input { margin-top: 3px; cursor: pointer; }
+    /* 恢复原生复选框，避免宿主页面的全局 input 样式隐藏勾选框。 */
+    #tm-bulkdel-panel .item input[type="checkbox"] {
+      all: revert !important;
+      -webkit-appearance: checkbox !important;
+      appearance: auto !important;
+      display: inline-block !important;
+      box-sizing: border-box !important;
+      width: 16px !important;
+      height: 16px !important;
+      flex: 0 0 16px !important;
+      margin: 3px 0 0 !important;
+      padding: 0 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      cursor: pointer !important;
+      accent-color: #007aff !important;
+    }
     #tm-bulkdel-panel .item .t { flex: 1; min-width: 0; }
     #tm-bulkdel-panel .item .name {
       font-weight: 500; margin-bottom: 4px;
