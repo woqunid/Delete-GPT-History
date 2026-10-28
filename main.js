@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT 批量删除会话
 // @namespace    https://tampermonkey.net/
-// @version      0.6.2
+// @version      0.6.3
 // @description  方形可拖拽悬浮按钮 → 弹出浅色面板 → 加载/搜索/全选/删除（不依赖侧边栏DOM）
 // @match        https://chatgpt.com/*
 // @match        https://chat.openai.com/*
@@ -152,27 +152,10 @@
     #tm-bulkdel-panel .item {
       display: flex; gap: 10px; padding: 10px 12px;
       border-bottom: 1px solid var(--tm-stroke2); align-items: flex-start;
-      transition: background .15s;
+      transition: background .15s; cursor: pointer;
     }
     #tm-bulkdel-panel .item:hover { background: #fafafa; }
     #tm-bulkdel-panel .item:last-child { border-bottom: none; }
-    /* 恢复原生复选框，避免宿主页面的全局 input 样式隐藏勾选框。 */
-    #tm-bulkdel-panel .item input[type="checkbox"] {
-      all: revert !important;
-      -webkit-appearance: checkbox !important;
-      appearance: auto !important;
-      display: inline-block !important;
-      box-sizing: border-box !important;
-      width: 16px !important;
-      height: 16px !important;
-      flex: 0 0 16px !important;
-      margin: 3px 0 0 !important;
-      padding: 0 !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      cursor: pointer !important;
-      accent-color: #007aff !important;
-    }
     #tm-bulkdel-panel .item .t { flex: 1; min-width: 0; }
     #tm-bulkdel-panel .item .name {
       font-weight: 500; margin-bottom: 4px;
@@ -284,12 +267,32 @@
 
     list.innerHTML = '';
     for (const c of filtered) {
-      const row = document.createElement('div');
+      const row = document.createElement('label');
       row.className = 'item';
 
       const cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.checked = state.selected.has(c.id);
+      cb.setAttribute('aria-label', `选择会话：${c.title || '(无标题)'}`);
+      // 使用行内重要样式和自绘勾号，隔离宿主页面对原生 input 的重置。
+      // label 包裹整行，点击标题也能勾选；保留原生键盘操作。
+      const checkmark = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M3 8l3 3 7-7\' fill=\'none\' stroke=\'white\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E")';
+      cb.style.cssText = `
+        all: revert !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        display: inline-block !important;
+        box-sizing: border-box !important;
+        width: 18px !important;
+        height: 18px !important;
+        flex: 0 0 18px !important;
+        margin: 2px 0 0 !important;
+        padding: 0 !important;
+        border: 1px solid ${cb.checked ? '#007aff' : '#888'} !important;
+        border-radius: 4px !important;
+        background: ${cb.checked ? '#007aff ' + checkmark + ' center / 14px 14px no-repeat' : '#fff'} !important;
+        cursor: pointer !important;
+      `;
       cb.addEventListener('change', () => {
         if (cb.checked) state.selected.add(c.id);
         else state.selected.delete(c.id);
@@ -557,7 +560,7 @@
       <header>
         <div class="title">
           批量删除会话
-          <span class="pill">API</span>
+          <span class="pill">API · v0.6.3</span>
         </div>
         <button id="tm-bulkdel-close" title="关闭 (Esc)">✕</button>
       </header>
@@ -580,7 +583,7 @@
         </div>
         <div class="log" id="tm-bulkdel-log"></div>
         <div class="hint">
-          打开面板：拖拽或点击右下角按钮。关闭：Esc 或点击遮罩。<br>按钮位置会自动保存。
+          点击会话左侧方框或标题可逐条勾选。<br>关闭：Esc 或点击遮罩。按钮位置会自动保存。
         </div>
       </div>
     `;
